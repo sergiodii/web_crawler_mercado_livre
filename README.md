@@ -7,7 +7,7 @@ Este repositório foi criado para demonstração de funcionamento de um web-craw
 A requisição deve ser via POST para '/' no formato JSON ( accept: application/json ), da seguinte forma:
 > <pre> 
 > {
->     search: String|Required
+>     search: String|Required // Conteúdo a ser pesquisado
 >     limit: Int|Optional // Default, o total entrado na primeira página da busca. 
 > }
 > 
