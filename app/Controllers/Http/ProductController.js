@@ -19,23 +19,32 @@ class ProductController {
      * @param {AdonisRequest} ctx.request
      * @param {Response} ctx.response
      */
-    async index ({response, request}) {
+
+    async index ({ response }) {
         try {
-            console.log(request.all())
-            return { url: 'not exist' }
+            return response.status(404).json({ error: 404, message: 'Page not found' })
         } catch (e) {
             console.log(e)
             return { 'error': e }
         }
     }
+
+    /**
+     * @function show
+     * @param {object} ctx
+     * @param {AuthSession} ctx.auth
+     * @param {AdonisRequest} ctx.request
+     * @param {Response} ctx.response
+     */
+
     async show ({ request, response }) {
         try {
             let { search, limit } = request.all()
             const res = await Axios.get(`${Env.get('BASE_PAGE')}/jm/search?as_word=${search.replace(/[ ]/g, '+')}`.replace(/[/][/][j]/g, '/j'));
             if (res.status === 200) {
-                return response.status(200).json(await ProductShowService.prepareReturnList(res.data))
+                return response.status(200).json(await ProductShowService.prepareReturnList(res.data, parseInt(limit) || null))
             }
-            return response.status(400).json({error: 400, message:'bad request'})
+            return response.status(res.status).json({ error: res.status, message: '' })
         } catch (e) {
             console.log(e)
             return { 'error': e }
