@@ -2,6 +2,7 @@
 const Cheerio = require('cheerio')
 const Axios = require('axios')
 const Env = use('Env')
+const Logger = use('Logger')
 
 class ProductShowService {
     
@@ -15,6 +16,7 @@ class ProductShowService {
         try {
             let finalList = []
             let $ = Cheerio.load(html)
+            let total = parseInt(($('.quantity-results').html()).split(' ')[1].replace('.', ''))
             let idList = []
             let SProducts = []
             $('#searchResults li').each(async function () {
@@ -47,7 +49,7 @@ class ProductShowService {
             }
 
             if (limit) {
-                if (limit <= idList.length) return finalList
+                if (limit <= idList.length) return { total, perPage: limit, data: finalList }
             }
             for (let self of SProducts) {
                 let product = await this._getProductTypeS(self)
@@ -57,9 +59,11 @@ class ProductShowService {
             }
             if (limit) {
                 if (limit <= 48) {
-                    return finalList.filter((v, i) => (parseInt(i) + 1) <= limit)
+                    let result = finalList.filter((v, i) => (parseInt(i) + 1) <= limit)
+                    return { total, perPage: limit, data: result }
                 }
                 let moreIdList = []
+                let numberToPageBreak = 48
                 $('.andes-pagination li').each(function () {
                     let pageNumber = parseInt($(this).find('.andes-pagination__link').html())
                     if (!isNaN(pageNumber)) moreIdList.push({
@@ -67,7 +71,17 @@ class ProductShowService {
                         url: $(this).find('.andes-pagination__link').attr('href')
                     })
                 })
-                let numberToPageBreak = 48
+                if (limit > 433) {
+                    let lastItemFromMoreIdList = moreIdList[(moreIdList.length - 1)]
+                    let baseUrl = lastItemFromMoreIdList.url.replace(/[_]\w+[_]\d+/, '')
+                    let lastPage = lastItemFromMoreIdList.pageNumber
+                    for (let i = 1; i < ((Math.floor(- (total % 433) / numberToPageBreak) * -1) + 1); i++) {
+                        moreIdList.push({
+                            pageNumber: pageNumber + parseInt(i),
+                            url: `${baseUrl}_Desde_${(parseInt(i) * numberToPageBreak) + 433 }`
+                        })
+                    }
+                }
                 let totalPageToSearch = (Math.floor(-(limit / numberToPageBreak))) * -1
                 for (let i = 1; i < (totalPageToSearch + 1); i++) {
                     let result = moreIdList.filter(r => r.pageNumber === parseInt(i))[0]
@@ -87,15 +101,14 @@ class ProductShowService {
                         }
                     }
                 }
-                console.log('Total do finalList', finalList.length)
-                let rr = finalList.filter((v, i) => parseInt(i) < limit)
-                return {data: rr, total: rr.length}
+                let result = finalList.filter((v, i) => parseInt(i) < limit)
+                return { total, perPage: limit, data: result }
             } else {
-                return finalList
+                return { total, perPage: limit, data: finalList}
             }
         } catch (e) {
-            console.log(e)
-            return []
+            Logger.error({ type: 'error', local: 'ProducShowService.js / ', data: e })
+            return { total: 0, perPage: limit, data: [] }
         }
     }
 
@@ -115,7 +128,7 @@ class ProductShowService {
                 return null
             }
         } catch (e) {
-            console.log(e)
+            Logger.error({local: 'ProducShowService.js / 001', data: e, date: new Date() })
             return null
         }
     }
@@ -150,7 +163,7 @@ class ProductShowService {
             }
             return null
         } catch (e) {
-            console.log(e)
+            Logger.error({local: 'ProducShowService.js / 002', data: e, date: new Date() })
             return null
         }
     }
