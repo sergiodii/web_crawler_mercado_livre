@@ -2,6 +2,7 @@
 
 /** @type {import('@adonisjs/framework/src/Env')} */
 const Env = use('Env')
+const Path = require('path')
 
 module.exports = {
 
@@ -188,7 +189,7 @@ module.exports = {
     | Available drivers are: `file` and `console`.
     |
     */
-    transport: 'console',
+    transport: 'file',
 
     /*
     |--------------------------------------------------------------------------
@@ -218,8 +219,8 @@ module.exports = {
     */
     file: {
       driver: 'file',
-      name: 'adonis-app',
-      filename: 'adonis.log',
+      name: 'web-crawler-mercado-livre',
+      filename: Path.resolve(__dirname, '..', 'logs/web-crawler-mercado-livre.log'),
       level: 'info'
     }
   },
