@@ -22,7 +22,7 @@ A resposta será retornada em JSON com HTTP Status Code 200 caso ok e no seguint
 >     perPage: Int // Total de conteúdo encontrado para o formato da pesquisa.
 >     data: Object // Conteúdo da busca
 >         {
->             "name": String, // Nome do produto
+>             "title": String, // Nome do produto
 >             "link": String, // Link do produto
 >             "price": Number, // Preço
 >             "store": String, // Nome da loja, se houver
