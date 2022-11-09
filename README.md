@@ -1,4 +1,4 @@
-# Web-Crawler Mercado Livre!
+# Web-Crawler Mercado Livre!(DEPRECATED)
 
 Este repositório foi criado para demonstração de funcionamento de um web-crawler.
 
